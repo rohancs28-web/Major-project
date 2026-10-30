@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Climate-Resilient Crop Yield Prediction Platform (CR-YPP)</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans antialiased min-h-screen flex flex-col">
+
+    <!-- Top Navigation Bar -->
+    <header class="bg-slate-900 border-b border-slate-800 px-6 py-4 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+            <i class="fa-solid fa-satellite text-emerald-400 text-2xl"></i>
+            <h1 class="text-xl font-bold tracking-wide">Climate-Resilient Yield Prediction Platform <span class="text-xs bg-emerald-900 text-emerald-300 px-2 py-0.5 rounded ml-2">CR-YPP v1.0</span></h1>
+        </div>
+        <div class="flex items-center space-x-4 text-sm text-slate-400">
+            <span><i class="fa-solid fa-circle text-emerald-500 text-xs mr-1"></i> Data Sync: Live (Sentinel-2)</span>
+            <div class="h-8 w-8 rounded-full bg-emerald-600 flex items-center justify-center font-bold text-white">R</div>
+        </div>
+    </header>
+
+    <!-- Main Dashboard Grid -->
+    <main class="flex-1 p-6 grid grid-cols-1 lg:grid-cols-4 gap-6">
+        
+        <!-- Left Sidebar: Controls & Analytics Summary -->
+        <section class="lg:col-span-1 space-y-6">
+            
+            <!-- Field Selection Box -->
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-lg">
+                <h2 class="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-3">Field Selection</h2>
+                <div class="space-y-3">
+                    <div>
+                        <label class="text-xs text-slate-400">Region Zone</label>
+                        <select id="regionSelect" class="w-full mt-1 bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-sm focus:outline-none focus:border-emerald-500">
+                            <option>Greater Noida Zone</option>
+                            <option>Yamuna Expressway Sector</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-xs text-slate-400">Crop Type</label>
+                        <select id="cropSelect" class="w-full mt-1 bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-sm focus:outline-none focus:border-emerald-500">
+                            <option>Wheat (Rabi Season)</option>
+                            <option>Paddy (Kharif Season)</option>
+                        </select>
+                    </div>
+                    <button onclick="fetchPrediction()" class="w-full mt-2 bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-2.5 rounded-lg transition text-sm shadow-md">
+                        <i class="fa-solid fa-wand-magic-sparkles mr-2"></i> Run Inference
+                    </button>
+                </div>
+            </div>
+
+            <!-- Yield Prediction Output Card -->
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-lg">
+                <h2 class="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-3">Yield Prediction Summary</h2>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-slate-950 p-3 rounded-lg border border-slate-800/60">
+                        <span class="text-xs text-slate-400">Projected Harvest</span>
+                        <div id="yieldOutput" class="text-2xl font-bold text-emerald-400 mt-1">7.1 T/ha</div>
+                    </div>
+                    <div class="bg-slate-950 p-3 rounded-lg border border-slate-800/60">
+                        <span class="text-xs text-slate-400">Model Confidence</span>
+                        <div class="text-2xl font-bold text-blue-400 mt-1">92%</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Weather Stress Stats -->
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-lg">
+                <h2 class="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-2">Climate Stress Factors</h2>
+                <ul class="text-sm space-y-2 text-slate-300">
+                    <li class="flex justify-between items-center py-1 border-b border-slate-800">
+                        <span>Temperature Anomaly:</span>
+                        <span class="text-amber-400 font-medium">+1.4°C</span>
+                    </li>
+                    <li class="flex justify-between items-center py-1 border-b border-slate-800">
+                        <span>Precipitation Stress:</span>
+                        <span class="text-emerald-400 font-medium">Optimal</span>
+                    </li>
+                    <li class="flex justify-between items-center py-1">
+                        <span>NDVI Health Index:</span>
+                        <span class="text-emerald-400 font-medium">0.78 (High)</span>
+                    </li>
+                </ul>
+            </div>
+
+        </section>
+
+        <!-- Right Main Panel: Interactive Map & Grad-CAM Heatmap Viewer -->
+        <section class="lg:col-span-3 bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-lg flex flex-col">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-base font-semibold flex items-center">
+                    <i class="fa-solid fa-map-location-dot text-emerald-400 mr-2"></i> Geospatial Risk & Yield Heatmap (Sentinel-2)
+                </h2>
+                <div class="space-x-2">
+                    <button class="bg-slate-800 hover:bg-slate-700 text-xs px-3 py-1.5 rounded-lg border border-slate-700 transition">
+                        <i class="fa-solid fa-draw-polygon mr-1"></i> Draw Boundary
+                    </button>
+                    <button class="bg-slate-800 hover:bg-slate-700 text-xs px-3 py-1.5 rounded-lg border border-slate-700 transition">
+                        <i class="fa-solid fa-layer-group mr-1"></i> Toggle Grad-CAM
+                    </button>
+                </div>
+            </div>
+
+            <!-- Map Viewport Container -->
+            <div class="flex-1 bg-slate-950 rounded-lg border border-slate-800 relative min-h-[450px] flex items-center justify-center overflow-hidden">
+                <!-- Placeholder background representing satellite map overlay -->
+                <div class="absolute inset-0 bg-cover bg-center opacity-40" style="background-image: url('https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&q=80&w=1200');"></div>
+                
+                <!-- Simulated Interactive Map Overlay Card -->
+                <div class="relative z-10 bg-slate-900/90 backdrop-blur border border-slate-700/80 p-6 rounded-xl text-center max-w-md shadow-2xl">
+                    <div class="h-12 w-12 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-3 text-xl">
+                        <i class="fa-solid fa-satellite-dish"></i>
+                    </div>
+                    <h3 class="text-lg font-bold mb-1">FastAPI Backend Connected</h3>
+                    <p class="text-xs text-slate-400 mb-4">Click below to trigger the CNN-LSTM-XGBoost inference pipeline and render real-time field yield predictions.</p>
+                    <button onclick="fetchPrediction()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-4 py-2 rounded-lg transition shadow">
+                        Load Map Prediction Overlay
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- JavaScript logic -->
+    <script src="script.js"></script>
+</body>
+</html>
